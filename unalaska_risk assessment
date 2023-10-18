@@ -1,0 +1,83 @@
+###############################################################
+#Unalaska soil contaminants leading to groundwater contamination
+################################################################
+
+install.packages("readxl")
+library(readxl)
+setwd("/Users/marcpverhougstraetemarcpverhougstraete/pCloud Drive/University of Arizona/One Health/Unalaska contaminated sites_Frank")
+data <- read_excel("MASTER - Unalaska_FUDSdata_SOIL4GIS25Jan2022.xlsx", sheet = "MV_Arsenic_converted", n_max = 144, , na = "")
+
+#Quick check of the data
+head(data)      # View the first few rows of the data
+summary(data)   # Get summary statistics of the data
+str(data)       # View the structure of the data
+
+class(data$Arsenic_water)
+sum(is.na(data$Arsenic_water))
+missing_values <- sum(is.na(data$Arsenic_water))
+print(paste("Number of missing values in 'Arsenic' column:", missing_values))
+missing_indices <- which(is.na(data$Arsenic_water))
+print("Row indices of missing values in 'Arsenic_water' column:")
+print(missing_indices)
+
+# Assuming your dataset is named 'data' and the column you want to find the mean of is named 'column_name'
+Arsenic_conc_water <- mean(data$Arsenic_water)
+Arsenic_conc_water
+Arsenic_sd_water <- sd(data$Arsenic_water)
+print(Arsenic_sd_water)
+
+# Assuming 'data' is the name of your data frame
+data_summary <- summary(data)
+print
+
+#Descriptive stats visualization
+install.packages("ggplot2")   # Install the ggplot2 package if you haven't already
+library(ggplot2)             # Load the ggplot2 package
+# Assuming 'data' is the name of your data frame and 'age' is a numeric variable in it.
+ggplot(data, aes(x = Arsenic_water)) +
+  geom_histogram(binwidth = 10, fill = "skyblue", color = "black") +
+  labs(title = "Histogram of Arsenic_water", x = "Arsenic_water", y = "Frequency")
+
+
+###Determining distribution of Arsenic data
+# Assuming 'data' is the name of your data frame and 'Arsenic' is the variable you want to fit.
+data_to_fit <- data$Arsenic_water
+
+# List of distributions to try
+dist_names <- c("normal", "lognormal", "exponential", "gamma", "weibull", "cauchy")
+
+# Initialize an empty list to store results
+fit_results <- list()
+
+# Fit each distribution and store the results
+for (dist_name in dist_names) {
+  fit_results[[dist_name]] <- suppressWarnings(
+    tryCatch(
+      fitdistr(data_to_fit, dist_name),
+      error = function(e) NULL
+    )
+  )
+}
+
+
+# Print results
+for (dist_name in dist_names) {
+  if (!is.null(fit_results[[dist_name]])) {
+    print(paste("Distribution:", dist_name))
+    print(fit_results[[dist_name]])
+    cat("\n")
+  }
+}
+
+
+##########################################################################
+#Arsenic concentration in soil converted to arsenic concentration in water 
+#### units ug/L
+Partition_coeeficient <- Kd
+Kd <-3.4 #this is specific to arsenic and is the median value from Table 1,page 13, in EPA report: PARTITION COEFFICIENTS FOR METALS IN SURFACE WATER, SOIL, AND WASTE
+#arsenic_conc_soil <- 3.932
+#arsenic_conc_water = 0.21942 #Mean concentration in water based on converted soil concentrations 
+#arsenic_sd_water = 0.12914 #standard deviation in water based on converted soil concentrations  
+Arsenic_sd_water
+Arsenic_conc_water
+
